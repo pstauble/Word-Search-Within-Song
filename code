@@ -1,0 +1,90 @@
+import easygui as eg
+import nltk
+import sys
+from urllib import urlopen
+
+eg.msgbox("Welcome to the word counter app.")
+eg.msgbox("This app will tell you how many words and how many sentences and how many vowels are in a song. Also, it will tell you how many times a word you choose is in a songs lyrics.")
+
+def strip_text_punctuation(song_text):
+	song_text=song_text.replace(",","")
+	song_text=song_text.replace("'","")
+	song_text=song_text.replace("!","")
+	song_text=song_text.replace("?","")
+	song_text=song_text.replace(".","")
+	song_text=song_text.replace("-","")
+	
+def song_application():
+	song_name=eg.enterbox(msg='Enter the title of the song you want.', title='Song Title', default='', strip=True, image=None, root=None)
+	artist_name=eg.enterbox(msg='Enter the name of the artist.', title='Artist Name', default='', strip=True, image=None, root=None)
+	search_word=eg.enterbox(msg='Enter the word I should search for.', title='Chosen Word', default='', strip=True, image=None, root=None)
+	if len(song_name)==0:
+		if eg.ccbox(msg='Oops! You have to enter a song name! Would you like to try again?', title=' ', choices=('Continue', 'Cancel'), image=None):
+			song_application()
+		else:
+			sys.exit(0)
+	if len(artist_name)==0:
+		if eg.ccbox(msg='Oops! You have to enter an artists name! Would you like to try again?', title=' ', choices=('Continue', 'Cancel'), image=None):
+			song_application()
+		else:
+			sys.exit(0)
+	if len(search_word)==0:
+		if eg.ccbox(msg='Oops! You have to enter an artists name! Would you like to try again?', title=' ', choices=('Continue', 'Cancel'), image=None):
+			song_application()
+		else:
+			sys.exit(0)
+
+
+	song_no_space=song_name.replace(" ","")
+	artist_no_space=artist_name.replace(" ","")
+	song_capital=song_name.title()
+	search_word_capital=search_word.title()
+	search_word_small=search_word.lower()
+
+
+
+
+	url = "http://www.azlyrics.com/lyrics/" + artist_no_space +"/"+song_no_space+".html"   
+	html = urlopen(url).read()    
+	raw = nltk.clean_html(html) 
+	if raw[0:8]=="AZLyrics":
+		if eg.ccbox(msg='Oops! That song does not exist! Would you like to try again?', title=' ', choices=('Continue', 'Cancel'), image=None):
+			song_application()
+		else:
+			sys.exit(0)
+	
+
+	first, separator, tail=raw.partition("Thanks to")
+
+
+	useless_part,sep,song_text=first.partition("Print")
+
+	eg.textbox(msg="Here are the lyrics of your song.", title='Song Lyrics', text=song_text, codebox=0)
+
+	strip_text_punctuation(song_text)
+
+
+	testlist=song_text.split(" ")
+	chosen_word_count=0
+	for i in testlist:
+		if i ==search_word or i==search_word_capital or i==search_word_small:
+			chosen_word_count=chosen_word_count+1
+	number_of_words=len(testlist)
+	letter_list=song_text.replace(" ","")
+	letter_list=list(letter_list)
+	number_of_letters=len(letter_list)
+	vowels=0
+	for x in letter_list:
+		if x=="a" or x=="e" or x=="i" or x=="o" or x=="u":
+			vowels= vowels+1
+
+	eg.textbox(msg="Results:", title='Results', text="In your text there are %r words, %r letters and %r vowels." %(number_of_words, number_of_letters, vowels), codebox=0)
+	eg.textbox(msg="Word Results:", title='Chosen Words', text="In your text the word %r shows up %r times." %(search_word_capital, chosen_word_count ), codebox=0)
+
+	if eg.ccbox(msg='Would you like to try again?', title=' ', choices=('Continue', 'Cancel'), image=None):
+		song_application()
+	else:
+		sys.exit(0)
+		
+song_application()
+		
