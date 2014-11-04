@@ -1,4 +1,4 @@
-song-word-search
+Word Search Within Song
 ================
 
 Searches for chosen words in a song.
